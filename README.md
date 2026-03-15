@@ -2,6 +2,8 @@
 
 Discover GitHub repositories like TikTok. Scroll through curated repos, swipe to save, and find your next project obsession.
 
+**Live:** [gitscroll-two.vercel.app](https://gitscroll-two.vercel.app)
+
 ![GitScroll](public/screenshot.png)
 
 ## What it does
