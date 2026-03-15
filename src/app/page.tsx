@@ -5,8 +5,7 @@ export default function Home() {
   return (
     <main>
       <Header />
-      {/* pt-16 offsets the fixed header height */}
-      <div className="pt-16">
+      <div style={{ paddingTop: "var(--header-height)" }}>
         <RepoFeed />
       </div>
     </main>
