@@ -2,6 +2,8 @@
 
 Discover GitHub repositories like TikTok. Scroll through curated repos, swipe to save, and find your next project obsession.
 
+![GitScroll](public/screenshot.png)
+
 ## What it does
 
 GitScroll surfaces interesting GitHub projects in a vertical feed — one card at a time. Each card shows the repo name, description, tech stack, star count, and a quick idea prompt for what you could build with it.
