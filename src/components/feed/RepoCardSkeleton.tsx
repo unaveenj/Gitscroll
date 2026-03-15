@@ -3,10 +3,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function RepoCardSkeleton() {
   return (
     <div
-      className="flex w-full flex-col items-center justify-center snap-start snap-always snap-stop-always px-4 sm:px-0"
-      style={{ height: "calc((100vh - var(--header-height)) * 0.88)" }}
+      className="flex w-full flex-col items-center justify-center snap-start snap-stop-always px-4 sm:px-0"
+      style={{ height: "92vh", marginBottom: "2vh" }}
     >
-      <div className="w-full max-w-md lg:max-w-xl rounded-2xl border border-border bg-card px-6 py-6 shadow-lg space-y-4">
+      <div className="w-full max-w-full sm:max-w-lg lg:max-w-[900px] mx-4 sm:mx-auto rounded-2xl border border-border bg-card px-6 py-6 shadow-lg space-y-4">
         {/* Owner + name */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">

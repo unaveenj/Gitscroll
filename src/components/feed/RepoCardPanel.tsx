@@ -192,8 +192,9 @@ export function RepoCardPanel({ repo }: RepoCardPanelProps) {
   return (
     <div
       className="
-        w-full mx-4 sm:mx-auto
-        max-w-md lg:max-w-xl 2xl:max-w-2xl
+        w-full
+        mx-4 sm:mx-auto
+        max-w-full sm:max-w-lg lg:max-w-[900px]
         rounded-2xl border border-border
         bg-card shadow-lg
         px-6 py-6 space-y-4

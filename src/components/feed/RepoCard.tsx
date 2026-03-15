@@ -10,23 +10,25 @@ interface RepoCardProps {
 /**
  * Scroll-snap slot — owns positioning only.
  *
- * This div is the unit that scroll-snap latches onto.
+ * height        : 92vh  — slightly shorter than the viewport so the
+ * margin-bottom : 2vh     next card's top edge peeks into view
+ *
  * All visual content lives in <RepoCardPanel>.
  *
  * Phase 4: wrap <RepoCardPanel> with react-tinder-card here.
- * No changes to RepoCardPanel will be needed.
+ * RepoCardPanel requires zero changes for that migration.
  */
 export function RepoCard({ repo }: RepoCardProps) {
   return (
     <div
-      className="relative flex w-full flex-col items-center justify-center snap-start snap-always snap-stop-always"
-      style={{ height: "calc((100vh - var(--header-height)) * 0.88)" }}
+      className="relative flex w-full flex-col items-center justify-center snap-start snap-stop-always"
+      style={{ height: "92vh", marginBottom: "2vh" }}
     >
       <RepoCardPanel repo={repo} />
 
-      {/* Fade gradient — softens the peek edge into the next card */}
+      {/* Subtle fade at the bottom edge — softens the peek transition */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-background/50"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-b from-transparent to-background/40"
         aria-hidden
       />
     </div>

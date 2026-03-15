@@ -5,9 +5,7 @@ export default function Home() {
   return (
     <main>
       <Header />
-      <div style={{ paddingTop: "var(--header-height)" }}>
-        <RepoFeed />
-      </div>
+      <RepoFeed />
     </main>
   );
 }
