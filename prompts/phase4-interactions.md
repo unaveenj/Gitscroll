@@ -1,0 +1,1 @@
+Add swipe gestures using react-tinder-card.
