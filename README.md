@@ -1,11 +1,5 @@
 <p align="center">
-  <img src="public/screenshot.png" alt="GitScroll" width="400"/>
-</p>
-
-<h1 align="center">GitScroll</h1>
-
-<p align="center">
-  Discover GitHub repos like TikTok. Scroll, swipe, save.
+  <img src="public/banner.svg" alt="GitScroll Banner" width="100%"/>
 </p>
 
 <p align="center">
@@ -27,6 +21,10 @@
 GitScroll is a GitHub repository discovery platform with a TikTok-style vertical feed and Tinder-style swipe actions. Instead of searching for repos, you scroll through them — one card at a time.
 
 **Scroll** through repos vertically · **Swipe right** to save · **Swipe left** to skip · **Tap** to flip for more details
+
+<p align="center">
+  <img src="public/screenshot.png" alt="GitScroll App" width="360"/>
+</p>
 
 ---
 
@@ -80,5 +78,7 @@ Generate one at [github.com/settings/tokens](https://github.com/settings/tokens)
 ---
 
 <p align="center">
+  <img src="public/logo.svg" alt="GitScroll Logo" width="48"/>
+  <br/>
   Made with ☕ by <a href="https://github.com/unaveenj">unaveenj</a>
 </p>
