@@ -1,0 +1,44 @@
+---
+title: GET /api/repos
+description: Fetch a paginated list of trending GitHub repositories.
+---
+
+# GET /api/repos
+
+Returns a page of trending GitHub repositories, proxied through the Next.js server so the `GITHUB_TOKEN` is never exposed to the client.
+
+## Query Parameters
+
+| Parameter | Type   | Default | Description              |
+|-----------|--------|---------|--------------------------|
+| `page`    | number | `1`     | Page number (1-indexed). |
+
+## Response
+
+```json
+{
+  "repos": [
+    {
+      "id": 1,
+      "name": "ai-voice-cloner",
+      "full_name": "example/ai-voice-cloner",
+      "description": "Clone voices using AI with just 3 seconds of audio.",
+      "html_url": "https://github.com/example/ai-voice-cloner",
+      "stargazers_count": 18200,
+      "language": "Python",
+      "topics": ["ai", "voice", "pytorch"],
+      "owner": {
+        "login": "example",
+        "avatar_url": "https://avatars.githubusercontent.com/u/1"
+      }
+    }
+  ],
+  "nextPage": 2
+}
+```
+
+`nextPage` is `null` when there are no more pages.
+
+## Authentication
+
+The server reads `GITHUB_TOKEN` from `process.env`. This variable must be set in `.env.local` (local development) or in Vercel Environment Variables (production). It is never returned in any API response or exposed to the browser.

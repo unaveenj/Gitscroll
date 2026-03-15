@@ -1,0 +1,22 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "GitScroll",
+  "colors": {
+    "primary": "#0F172A",
+    "light": "#e2e8f0",
+    "dark": "#0F172A"
+  },
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart"]
+    },
+    {
+      "group": "API Reference",
+      "pages": ["api-reference/repos"]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com"
+  }
+}
