@@ -1,0 +1,109 @@
+---
+title: "Data flow"
+description: "End-to-end trace of how a repository travels from the GitHub API to a rendered card."
+---
+
+This page traces a single repository from the GitHub Search API to the card the user sees on screen.
+
+## Request lifecycle
+
+<Steps>
+  <Step title="Session start — client">
+    `useRepoFeed` (TanStack Query infinite query) fires on mount with `initialPageParam: 1`.
+
+    ```typescript
+    // src/hooks/useRepoFeed.ts
+    const query = useInfiniteQuery({
+      queryKey: ["repos"],
+      queryFn: ({ pageParam }) => fetchRepoPage(pageParam),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    });
+    ```
+  </Step>
+
+  <Step title="API route — server">
+    `GET /api/repos?page=1` reaches `src/app/api/repos/route.ts`.
+
+    The route reads the `page` query param, validates it, and calls `fetchRepos(page)`.
+  </Step>
+
+  <Step title="Random page selection — server">
+    On page 1, `fetchRepos` picks a random starting page (1–50) so each session lands on a different slice of the dataset.
+
+    ```typescript
+    const resolvedPage =
+      !page || page === 1 ? Math.floor(Math.random() * 50) + 1 : page;
+    ```
+
+    Subsequent pages increment sequentially from there.
+  </Step>
+
+  <Step title="GitHub Search API call — server">
+    The service builds the search URL and fetches with the server-side token.
+
+    ```
+    GET https://api.github.com/search/repositories
+      ?q=stars:30..500+pushed:>2024-01-01
+      &sort=updated
+      &order=desc
+      &per_page=20
+      &page={resolvedPage}
+    ```
+
+    The token is read from `process.env.GITHUB_TOKEN` and added as a `Bearer` header. It never leaves the server.
+  </Step>
+
+  <Step title="Categorisation and interleaving — server">
+    Each raw search item is mapped to `GitHubRepo` (without a category), then passed through `FeedManager.appendRaw()`, which calls `categorizeRepo()` and `buildFeed()` to produce the interleaved `TRENDING → AI → TOOLS → FUN` sequence.
+  </Step>
+
+  <Step title="API response — server → client">
+    The route returns a `RepoFeedPage` JSON object.
+
+    ```typescript
+    interface RepoFeedPage {
+      repos: GitHubRepo[];
+      nextPage: number | null;
+    }
+    ```
+
+    `nextPage` is `null` when the GitHub API returned fewer than 20 items (last page).
+  </Step>
+
+  <Step title="Client accumulation">
+    TanStack Query appends the new page to its cache. `useRepoFeed` flattens all pages:
+
+    ```typescript
+    const repos = query.data?.pages.flatMap((page) => page.repos) ?? [];
+    ```
+
+    `RepoFeed` tracks `currentIndex`. When the user reaches four cards from the end, `fetchNextPage()` is called automatically.
+  </Step>
+
+  <Step title="Rendering">
+    `CardStack` renders the top three cards in the `repos` array starting at `currentIndex`. Each card is a `RepoCardPanel` — a 3D-flippable flashcard with front (summary) and back (full detail) faces.
+  </Step>
+</Steps>
+
+## Key boundaries
+
+| Boundary | What crosses it |
+|----------|----------------|
+| Server → GitHub | `GITHUB_TOKEN` (never sent to client) |
+| Server → Client | `RepoFeedPage` JSON (`repos[]`, `nextPage`) |
+| Client cache | TanStack Query accumulates all pages in memory |
+| Client → localStorage | `useFavorites` persists saved repos on every toggle |
+
+## Caching
+
+The GitHub API fetch uses Next.js `fetch` with `next: { revalidate: 3600 }`. This means the same page number is cached on the server for one hour before a fresh fetch is made. Because the random page is chosen at request time (not at build time), each session still starts at a different offset despite the cache.
+
+## Error states
+
+| Condition | Behaviour |
+|-----------|-----------|
+| `GITHUB_TOKEN` missing | Falls back to 12 mock repos; logs a warning |
+| GitHub API non-2xx | Throws; route returns `{ error }` with status 500 |
+| Network failure (client) | TanStack Query marks query as errored; `RepoFeed` shows an error state |
+| Invalid `page` param | Route returns 400 before calling the service |

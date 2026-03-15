@@ -5,6 +5,8 @@ import { RepoCardPanel } from "./RepoCardPanel";
 
 interface RepoCardProps {
   repo: GitHubRepo;
+  index: number;
+  total: number;
 }
 
 /**
@@ -18,13 +20,14 @@ interface RepoCardProps {
  * Phase 4: wrap <RepoCardPanel> with react-tinder-card here.
  * RepoCardPanel requires zero changes for that migration.
  */
-export function RepoCard({ repo }: RepoCardProps) {
+export function RepoCard({ repo, index, total }: RepoCardProps) {
   return (
     <div
+      data-repo-card
       className="relative flex w-full flex-col items-center justify-center snap-start snap-stop-always"
       style={{ height: "92vh", marginBottom: "2vh" }}
     >
-      <RepoCardPanel repo={repo} />
+      <RepoCardPanel repo={repo} index={index} total={total} />
 
       {/* Subtle fade at the bottom edge — softens the peek transition */}
       <div

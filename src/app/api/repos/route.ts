@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchTrendingRepos } from "@/services/githubService";
+import { fetchRepos } from "@/services/githubService";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const data = await fetchTrendingRepos(page);
+    const data = await fetchRepos(page);
     return NextResponse.json(data);
   } catch (error) {
     console.error("[/api/repos] Error fetching repos:", error);

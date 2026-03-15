@@ -36,6 +36,10 @@ const config: Config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
       },
+      fontFamily: {
+        display: ["Syne", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "ui-monospace", "monospace"],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

@@ -1,0 +1,69 @@
+---
+title: "Favorites"
+description: "How saved repositories are stored and managed with no backend required."
+---
+
+Favorites are persisted to `localStorage` on the user's device. No account, no server, no database.
+
+## Storage key
+
+All saved repos are stored under a single key:
+
+```
+gitscroll:favorites
+```
+
+The value is a JSON-serialised `GitHubRepo[]` array.
+
+## Storage module
+
+`src/lib/favoritesStorage.ts` exposes two pure functions:
+
+```typescript
+// Read all favorites (returns [] on parse error or missing key)
+getFavorites(): GitHubRepo[]
+
+// Write the full favorites array
+saveFavorites(repos: GitHubRepo[]): void
+```
+
+Both functions are wrapped in `try/catch` so storage quota errors or corrupted data never crash the app.
+
+## useFavorites hook
+
+`src/hooks/useFavorites.ts` wraps the storage module with React state.
+
+```typescript
+const { favorites, toggle, isSaved } = useFavorites();
+```
+
+| Return value | Type | Description |
+|-------------|------|-------------|
+| `favorites` | `GitHubRepo[]` | Current saved repos |
+| `toggle(repo)` | `(repo: GitHubRepo) => void` | Add or remove a repo |
+| `isSaved(id)` | `(id: number) => boolean` | Check if a repo is saved |
+
+### SSR safety
+
+`localStorage` is not available during server-side rendering. The hook initialises `favorites` to `[]` and hydrates from storage only after the component mounts:
+
+```typescript
+useEffect(() => {
+  setFavorites(getFavorites());
+  setMounted(true);
+}, []);
+
+useEffect(() => {
+  if (mounted) saveFavorites(favorites);
+}, [favorites, mounted]);
+```
+
+The `mounted` guard prevents the hydration `useEffect` from triggering a write with an empty array before the read completes.
+
+## Favorites page
+
+The `/favorites` route (`src/app/favorites/`) renders the saved repos in a grid. Because the hook hydrates after mount, the page briefly shows an empty state before repos appear — this is expected and intentional (no layout shift from server-rendered content).
+
+## Clearing favorites
+
+There is no UI to clear all favorites in the current release. To reset manually, open DevTools → Application → Local Storage → delete the `gitscroll:favorites` key.

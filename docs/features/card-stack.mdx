@@ -1,0 +1,99 @@
+---
+title: "Card stack"
+description: "How the Framer Motion swipe system and stacked card UI works."
+---
+
+The card stack is GitScroll's primary interaction surface. Three cards are visible at once — the active card at full size, two peeking cards behind it — and the user swipes or presses a key to advance.
+
+## Visual structure
+
+```
+┌─────────────────────┐  ← active card (full opacity, full size)
+│                     │
+│   RepoCardPanel     │
+│                     │
+└─────────────────────┘
+   ┌───────────────┐     ← next card (scaled to 95.3%, offset 14px down)
+      ┌─────────┐        ← card after (scaled to 90.6%, offset 26px down)
+```
+
+The container height is `clamp(460px, 58vh, 620px)`. The two peeking cards are clipped by a 32 px bottom padding on the container.
+
+## Swipe interaction
+
+The active card is a Framer Motion `motion.div` with `drag="x"`. While dragging:
+
+- `useMotionValue` tracks the `x` offset.
+- `useTransform` maps `x` to rotation (±15°) and opacity (fades at ±150 px).
+- A directional label — **SAVE** (right) or **SKIP** (left) — fades in.
+
+When the drag ends:
+
+- If `|x| >= 110` (the drag threshold), the card animates off screen and `onAdvance()` is called.
+- Otherwise the card springs back to centre.
+
+The two stacked cards animate in sync: as the drag offset grows they scale up and shift upward, so they appear to rise into position before the swipe completes.
+
+## Card flip
+
+Each `RepoCardPanel` has an internal flip state toggled by tapping/clicking the card body.
+
+```
+Front face: badge · title · owner · description · chips+stars · idea spark · actions
+Back face:  full description · all topics · star/fork/language stats · actions
+```
+
+The flip uses CSS 3D transforms:
+
+```css
+.flip-container { transform-style: preserve-3d; transition: transform 0.5s; }
+.flipped        { transform: rotateY(180deg); }
+.front          { backface-visibility: hidden; }
+.back           { backface-visibility: hidden; transform: rotateY(180deg); }
+```
+
+The outer `CardStack` passes `key={active.id}` to force `RepoCardPanel` to remount on each advance, which resets the flip state so the next card always starts face-up.
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Space` | Advance to next card |
+| `↑ Arrow Up` | Advance to next card |
+
+## Pagination trigger
+
+`RepoFeed` watches `currentIndex` against the total repo count. When the user reaches four cards from the end and the next page has not been fetched yet, `fetchNextPage()` is called automatically.
+
+```typescript
+useEffect(() => {
+  if (
+    currentIndex >= repos.length - 4 &&
+    hasNextPage &&
+    !isFetchingNextPage
+  ) {
+    fetchNextPage();
+  }
+}, [currentIndex, repos.length, hasNextPage, isFetchingNextPage]);
+```
+
+## Surprise Me
+
+The floating **Surprise Me** button picks a random index within the current deck and sets `currentIndex` directly — no animation, immediate jump.
+
+```typescript
+function handleSurpriseMe() {
+  const total = repos.length;
+  if (total < 2) return;
+  const current = currentIndex;
+  let random: number;
+  do {
+    random = Math.floor(Math.random() * total);
+  } while (random === current);
+  setCurrentIndex(random);
+}
+```
+
+## Done state
+
+When `currentIndex >= repos.length` and there are no more pages to fetch, `RepoFeed` renders a completion screen instead of the card stack. This state is only reached after the user has swiped past the final card.

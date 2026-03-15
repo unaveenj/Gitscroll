@@ -1,3 +1,5 @@
+export type RepoCategory = "TRENDING" | "AI" | "TOOLS" | "FUN";
+
 export interface GitHubRepo {
   id: number;
   name: string;
@@ -7,6 +9,7 @@ export interface GitHubRepo {
   stargazers_count: number;
   language: string | null;
   topics: string[];
+  category: RepoCategory;
   owner: {
     login: string;
     avatar_url: string;

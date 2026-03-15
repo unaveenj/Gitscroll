@@ -7,162 +7,137 @@
  */
 
 import type { GitHubRepo, RepoFeedPage } from "@/types/github";
+import { MOCK_REPOS } from "./mockRepos";
+import { FeedManager } from "./feedManager";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 
-const MOCK_REPOS: GitHubRepo[] = [
-  {
-    id: 1,
-    name: "ai-voice-cloner",
-    full_name: "example/ai-voice-cloner",
-    description: "Clone voices using AI with just 3 seconds of audio.",
-    html_url: "https://github.com/example/ai-voice-cloner",
-    stargazers_count: 18200,
-    language: "Python",
-    topics: ["ai", "voice", "pytorch", "deep-learning"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/1" },
-  },
-  {
-    id: 2,
-    name: "local-llm-runner",
-    full_name: "example/local-llm-runner",
-    description: "Run large language models locally on consumer hardware.",
-    html_url: "https://github.com/example/local-llm-runner",
-    stargazers_count: 34500,
-    language: "Rust",
-    topics: ["llm", "ai", "rust", "inference"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/2" },
-  },
-  {
-    id: 3,
-    name: "shadcn-landing-page",
-    full_name: "example/shadcn-landing-page",
-    description: "Beautiful landing page components built with shadcn/ui and TailwindCSS.",
-    html_url: "https://github.com/example/shadcn-landing-page",
-    stargazers_count: 8900,
-    language: "TypeScript",
-    topics: ["nextjs", "shadcn", "tailwindcss", "ui"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/3" },
-  },
-  {
-    id: 4,
-    name: "open-interpreter",
-    full_name: "example/open-interpreter",
-    description: "Let language models run code on your computer.",
-    html_url: "https://github.com/example/open-interpreter",
-    stargazers_count: 52000,
-    language: "Python",
-    topics: ["ai", "llm", "interpreter", "automation"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/4" },
-  },
-  {
-    id: 5,
-    name: "gitscroll-clone",
-    full_name: "example/gitscroll-clone",
-    description: "Discover GitHub repos with a TikTok-style swipeable feed.",
-    html_url: "https://github.com/example/gitscroll-clone",
-    stargazers_count: 1200,
-    language: "TypeScript",
-    topics: ["nextjs", "github", "discovery", "swipe"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/5" },
-  },
-  {
-    id: 6,
-    name: "micro-rpc",
-    full_name: "example/micro-rpc",
-    description: "Minimal RPC framework for building blazing-fast distributed systems in Go.",
-    html_url: "https://github.com/example/micro-rpc",
-    stargazers_count: 42300,
-    language: "Go",
-    topics: ["rpc", "distributed-systems", "grpc", "go"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/6" },
-  },
-  {
-    id: 7,
-    name: "spring-boot-saas-starter",
-    full_name: "example/spring-boot-saas-starter",
-    description: "Production-ready SaaS boilerplate with multi-tenancy, billing, and auth baked in.",
-    html_url: "https://github.com/example/spring-boot-saas-starter",
-    stargazers_count: 28700,
-    language: "Java",
-    topics: ["spring-boot", "saas", "multi-tenancy", "java"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/7" },
-  },
-  {
-    id: 8,
-    name: "webgpu-pathtracer",
-    full_name: "example/webgpu-pathtracer",
-    description: "Real-time path tracer running entirely on the GPU via WebGPU and C++ bindings.",
-    html_url: "https://github.com/example/webgpu-pathtracer",
-    stargazers_count: 61400,
-    language: "C++",
-    topics: ["webgpu", "raytracing", "graphics", "wasm"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/8" },
-  },
-  {
-    id: 9,
-    name: "swift-composable-ui",
-    full_name: "example/swift-composable-ui",
-    description: "Composable, declarative UI architecture for SwiftUI apps. Inspired by React.",
-    html_url: "https://github.com/example/swift-composable-ui",
-    stargazers_count: 15600,
-    language: "Swift",
-    topics: ["swiftui", "ios", "architecture", "composable"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/9" },
-  },
-  {
-    id: 10,
-    name: "vanilla-framework",
-    full_name: "example/vanilla-framework",
-    description: "Zero-dependency component framework for the modern web. No build step required.",
-    html_url: "https://github.com/example/vanilla-framework",
-    stargazers_count: 77200,
-    language: "JavaScript",
-    topics: ["web-components", "no-build", "vanilla", "framework"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/10" },
-  },
-  {
-    id: 11,
-    name: "diffusion-notebooks",
-    full_name: "example/diffusion-notebooks",
-    description: "Curated Jupyter notebooks for training and fine-tuning diffusion models from scratch.",
-    html_url: "https://github.com/example/diffusion-notebooks",
-    stargazers_count: 9100,
-    language: "Python",
-    topics: ["diffusion", "stable-diffusion", "jupyter", "machine-learning"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/11" },
-  },
-  {
-    id: 12,
-    name: "query-builder-ts",
-    full_name: "example/query-builder-ts",
-    description: "Type-safe SQL query builder for TypeScript with zero runtime overhead.",
-    html_url: "https://github.com/example/query-builder-ts",
-    stargazers_count: 3400,
-    language: "TypeScript",
-    topics: ["sql", "typescript", "type-safe", "orm"],
-    owner: { login: "example", avatar_url: "https://avatars.githubusercontent.com/u/12" },
-  },
-];
+const GITHUB_API_URL = "https://api.github.com/search/repositories";
 
-/**
- * Fetches a page of trending repositories.
- * Phase 1: returns mock data.
- * Phase 3: replaces with real GitHub Search API calls using GITHUB_TOKEN.
- */
-export async function fetchTrendingRepos(page: number = 1): Promise<RepoFeedPage> {
-  // Phase 3 will replace this with:
-  // const token = process.env.GITHUB_TOKEN;
-  // const res = await fetch(`https://api.github.com/search/repositories?q=stars:>1000&sort=stars&order=desc&per_page=${ITEMS_PER_PAGE}&page=${page}`, {
-  //   headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" },
-  //   next: { revalidate: 60 },
-  // });
+const SEARCH_QUERY = "stars:30..500 pushed:>2024-01-01";
 
+// ─── Raw GitHub API shape ─────────────────────────────────────────────────────
+
+interface GitHubSearchItem {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string | null;
+  html_url: string;
+  stargazers_count: number;
+  language: string | null;
+  topics: string[];
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
+
+interface GitHubSearchResponse {
+  total_count: number;
+  incomplete_results: boolean;
+  items: GitHubSearchItem[];
+}
+
+// ─── Mapping ──────────────────────────────────────────────────────────────────
+
+function mapItem(item: GitHubSearchItem): Omit<GitHubRepo, "category"> {
+  return {
+    id: item.id,
+    name: item.name,
+    full_name: item.full_name,
+    description: item.description,
+    html_url: item.html_url,
+    stargazers_count: item.stargazers_count,
+    language: item.language,
+    topics: item.topics ?? [],
+    owner: {
+      login: item.owner.login,
+      avatar_url: item.owner.avatar_url,
+    },
+  };
+}
+
+// ─── Mock fallback ────────────────────────────────────────────────────────────
+
+function mockFallback(page: number): RepoFeedPage {
+  const manager = new FeedManager();
+  manager.append(MOCK_REPOS);
+  const feed = manager.getFeed();
   const start = (page - 1) * ITEMS_PER_PAGE;
-  const slice = MOCK_REPOS.slice(start, start + ITEMS_PER_PAGE);
-
+  const slice = feed.slice(start, start + ITEMS_PER_PAGE);
   return {
     repos: slice,
     nextPage: slice.length === ITEMS_PER_PAGE ? page + 1 : null,
+  };
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Fetch a page of trending repositories.
+ *
+ * With GITHUB_TOKEN set: fetches live data from GitHub Search API.
+ * Without GITHUB_TOKEN: returns mock data (local development fallback).
+ *
+ * On page 1, a random starting page (1–50) is chosen so sessions begin at
+ * different offsets in the dataset. Subsequent pages increment sequentially.
+ *
+ * Each repo is categorized and interleaved in TRENDING → AI → TOOLS → FUN
+ * order via FeedManager before being returned.
+ */
+export async function fetchRepos(page?: number): Promise<RepoFeedPage> {
+  const token = process.env.GITHUB_TOKEN;
+
+  // On page 1 (session start), jump to a random page in the dataset
+  // so different users see different slices of mid-tier repos.
+  const resolvedPage =
+    !page || page === 1 ? Math.floor(Math.random() * 50) + 1 : page;
+
+  if (!token) {
+    console.warn("[githubService] GITHUB_TOKEN not set — using mock data");
+    return mockFallback(resolvedPage);
+  }
+
+  console.log(`[githubService] fetching page ${resolvedPage} from GitHub API`);
+
+  const url = new URL(GITHUB_API_URL);
+  url.searchParams.set("q", SEARCH_QUERY);
+  url.searchParams.set("sort", "updated");
+  url.searchParams.set("order", "desc");
+  url.searchParams.set("per_page", String(ITEMS_PER_PAGE));
+  url.searchParams.set("page", String(resolvedPage));
+
+  console.log(`[githubService] GET ${url.toString()}`);
+
+  const res = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    next: { revalidate: 3600 },
+  });
+
+  console.log(`[githubService] response status: ${res.status} ${res.statusText}`);
+  console.log(`[githubService] rate limit remaining: ${res.headers.get("x-ratelimit-remaining")} / ${res.headers.get("x-ratelimit-limit")}`);
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error(`[githubService] error body: ${body}`);
+    throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
+  }
+
+  const data: GitHubSearchResponse = await res.json();
+  console.log(`[githubService] received ${data.items.length} repos (total_count: ${data.total_count})`);
+
+  const rawRepos = data.items.map(mapItem);
+
+  const manager = new FeedManager();
+  manager.appendRaw(rawRepos);
+
+  return {
+    repos: manager.getFeed(),
+    nextPage: data.items.length === ITEMS_PER_PAGE ? resolvedPage + 1 : null,
   };
 }

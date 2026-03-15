@@ -1,0 +1,64 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "GitScroll",
+  "colors": {
+    "primary": "#00e5cc",
+    "light": "#00e5cc",
+    "dark": "#00b8a9"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "logo": {
+    "light": "/images/logo.svg",
+    "dark": "/images/logo.svg"
+  },
+  "favicon": "/favicon.ico",
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com"
+    }
+  },
+  "navigation": [
+    {
+      "group": "Getting started",
+      "pages": ["index", "quickstart"]
+    },
+    {
+      "group": "Architecture",
+      "pages": [
+        "architecture/overview",
+        "architecture/feed-system",
+        "architecture/data-flow"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "features/card-stack",
+        "features/favorites",
+        "features/themes"
+      ]
+    },
+    {
+      "group": "Configuration",
+      "pages": [
+        "configuration/environment",
+        "configuration/github-token"
+      ]
+    },
+    {
+      "group": "API reference",
+      "pages": ["api-reference/repos"]
+    }
+  ]
+}

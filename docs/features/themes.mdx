@@ -1,0 +1,70 @@
+---
+title: "Themes"
+description: "Dark-first theming with next-themes and per-category card accents."
+---
+
+GitScroll ships with a dark-first theme and four per-category accent palettes that are applied to individual cards.
+
+## Dark / light toggle
+
+Theming is handled by `next-themes`. The `ThemeProvider` in `src/app/providers.tsx` sets `defaultTheme="dark"` so every user starts in dark mode regardless of system preference.
+
+The `Header` component renders a toggle button that switches between `"dark"` and `"light"`.
+
+## CSS variables
+
+Global design tokens live in `src/app/globals.css`:
+
+```css
+:root {
+  --background:     222 50% 4%;    /* near-black navy */
+  --foreground:     210 40% 96%;   /* near-white */
+  --primary:        174 90% 44%;   /* teal #00e5cc   */
+  --primary-dark:   177 100% 36%;  /* deeper teal    */
+  --card:           220 40% 7%;
+  --border:         220 20% 12%;
+  --muted:          220 15% 20%;
+  --muted-foreground: 220 10% 55%;
+  --header-height:  56px;
+}
+
+.light {
+  --background:  0 0% 98%;
+  --foreground:  222 47% 8%;
+  /* … */
+}
+```
+
+All component colours reference these variables so the entire UI switches correctly with a single class change on `<html>`.
+
+## Typography
+
+Three typefaces are imported from Google Fonts and assigned to utility classes:
+
+| Class | Font | Use |
+|-------|------|-----|
+| `.font-display` | Syne | Brand wordmark, headings |
+| *(body default)* | Manrope | All body text |
+| `.font-code` | JetBrains Mono | Navigation links, code, repo names |
+
+## Per-category card themes
+
+Each of the four categories has a dedicated accent palette applied directly to `RepoCardPanel`:
+
+| Category | Accent | Top glow | Badge |
+|----------|--------|----------|-------|
+| `TRENDING` | `#00e5cc` (teal) | `rgba(0,229,204,0.18)` | Teal border |
+| `AI` | `#a78bfa` (violet) | `rgba(167,139,250,0.18)` | Violet border |
+| `TOOLS` | `#38bdf8` (sky) | `rgba(56,189,248,0.18)` | Sky border |
+| `FUN` | `#fb923c` (orange) | `rgba(251,146,60,0.18)` | Orange border |
+
+The top glow is a `radial-gradient` applied to the card's top edge. The card shadow also picks up the category accent colour, creating a coloured halo behind each card.
+
+## Animations
+
+Two custom keyframe animations are defined in `globals.css`:
+
+- **`glow-pulse`** — periodically intensifies the top-edge glow on active cards.
+- **`shimmer-sweep`** — diagonal highlight sweep used in `RepoCardSkeleton` while data loads.
+
+Both are applied via utility classes (`.animate-glow-pulse`, `.gs-shimmer`) rather than inline styles.

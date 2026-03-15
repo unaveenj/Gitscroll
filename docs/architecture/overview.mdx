@@ -1,0 +1,100 @@
+---
+title: "Architecture overview"
+description: "How GitScroll's server, client, and data layers fit together."
+sidebarTitle: "Overview"
+---
+
+GitScroll is a Next.js 14 App Router application. The server handles GitHub API communication and data transformation; the client renders the swipeable card stack and manages local state.
+
+## Directory structure
+
+<Tree>
+  <Folder name="src">
+    <Folder name="app">
+      <File name="layout.tsx" />
+      <File name="page.tsx" />
+      <File name="globals.css" />
+      <File name="providers.tsx" />
+      <Folder name="api">
+        <Folder name="repos">
+          <File name="route.ts" />
+        </Folder>
+      </Folder>
+      <Folder name="favorites">
+        <File name="page.tsx" />
+      </Folder>
+    </Folder>
+    <Folder name="components">
+      <Folder name="feed">
+        <File name="RepoFeed.tsx" />
+        <File name="CardStack.tsx" />
+        <File name="RepoCardPanel.tsx" />
+        <File name="RepoCardSkeleton.tsx" />
+      </Folder>
+      <Folder name="layout">
+        <File name="Header.tsx" />
+        <File name="DarkModeToggle.tsx" />
+      </Folder>
+    </Folder>
+    <Folder name="services">
+      <File name="githubService.ts" />
+      <File name="feedBuilder.ts" />
+      <File name="feedManager.ts" />
+      <File name="mockRepos.ts" />
+    </Folder>
+    <Folder name="hooks">
+      <File name="useRepoFeed.ts" />
+      <File name="useFavorites.ts" />
+    </Folder>
+    <Folder name="lib">
+      <File name="favoritesStorage.ts" />
+      <File name="queryClient.ts" />
+    </Folder>
+    <Folder name="types">
+      <File name="github.ts" />
+    </Folder>
+  </Folder>
+</Tree>
+
+## Layers at a glance
+
+```
+Browser                    Next.js server
+──────────────────────     ──────────────────────────────────────
+RepoFeed (useState)   ──►  GET /api/repos?page=N
+  CardStack            ◄──   fetchRepos() → githubService.ts
+  RepoCardPanel              FeedManager → feedBuilder.ts
+  useFavorites               GitHub Search API
+  localStorage
+```
+
+### Server layer
+
+| Module | Responsibility |
+|--------|---------------|
+| `app/api/repos/route.ts` | Next.js Route Handler — validates query params, calls `fetchRepos`, returns JSON |
+| `services/githubService.ts` | Calls GitHub Search API, maps response to `GitHubRepo[]`, falls back to mock data |
+| `services/feedBuilder.ts` | Categorises each repo as TRENDING, AI, TOOLS, or FUN based on topics and language |
+| `services/feedManager.ts` | Holds per-category buckets and interleaves them into a balanced feed |
+| `services/mockRepos.ts` | 12 pre-labelled repos used when `GITHUB_TOKEN` is absent |
+
+### Client layer
+
+| Module | Responsibility |
+|--------|---------------|
+| `hooks/useRepoFeed.ts` | TanStack Query infinite query — fetches pages, flattens into a single repo array |
+| `components/feed/RepoFeed.tsx` | Top-level feed component — owns `currentIndex` state, renders `CardStack` |
+| `components/feed/CardStack.tsx` | Framer Motion drag layer — renders 3 stacked cards, handles swipe physics |
+| `components/feed/RepoCardPanel.tsx` | Visual card content — front/back flip, category theming, action buttons |
+| `hooks/useFavorites.ts` | Read/write favourites to `localStorage` |
+| `lib/favoritesStorage.ts` | Raw `localStorage` serialisation helpers |
+
+## Key design decisions
+
+**Server-only GitHub token** — `GITHUB_TOKEN` is read exclusively inside `githubService.ts`, which is imported only by the API route. It is never bundled into client JavaScript.
+
+**Random start page** — On the first request (no `page` param), `githubService.ts` picks a random page between 1 and 10. This means different sessions surface different repos without requiring a database.
+
+**No global state library** — Feed state is `useState` in `RepoFeed`. Favourites state is `useState` + `localStorage` in `useFavorites`. TanStack Query handles server cache. No Redux or Zustand needed.
+
+**`currentIndex` advances forward only** — The card stack works by keeping all fetched repos in memory and incrementing an index pointer. Swiped cards are not removed from the array; they become unreachable via the pointer. This makes "Surprise Me" (jumping to a random index) trivial.

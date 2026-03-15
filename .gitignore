@@ -5,9 +5,13 @@ node_modules/
 .next/
 out/
 
-# Environment variables
+# Environment variables — never commit secrets
+.env
 .env.local
 .env.*.local
+.env.development
+.env.production
+.env.test
 
 # macOS
 .DS_Store
@@ -18,3 +22,11 @@ out/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Planning / internal docs — keep off GitHub
+SPEC.md
+TECH_STACK.md
+UI_REQUIREMENTS.md
+BUSINESS_REQUIREMENTS.md
+CLAUDE.md
+agents/

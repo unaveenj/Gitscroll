@@ -1,15 +1,48 @@
+import Link from "next/link";
+import { Bookmark } from "lucide-react";
 import { DarkModeToggle } from "./DarkModeToggle";
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="flex items-center gap-2">
-        <span className="text-xl font-bold tracking-tight">GitScroll</span>
-        <span className="text-xs text-muted-foreground hidden sm:inline">
-          Discover repos you&apos;ll love
+    <header
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 sm:px-8 border-b border-white/[0.06]"
+      style={{
+        height: "var(--header-height)",
+        background: "rgba(6, 9, 20, 0.80)",
+        backdropFilter: "blur(24px) saturate(1.5)",
+        WebkitBackdropFilter: "blur(24px) saturate(1.5)",
+      }}
+    >
+      {/* Brand */}
+      <div className="flex items-center gap-3">
+        <span className="font-display text-lg font-bold tracking-tight text-foreground leading-none">
+          Git<span style={{ color: "#00e5cc" }}>Scroll</span>
+        </span>
+        <span className="hidden sm:block h-3.5 w-px bg-white/10" />
+        <span className="hidden sm:block font-code text-[10px] text-muted-foreground/45 tracking-[0.18em] uppercase">
+          discover hidden gems
         </span>
       </div>
-      <DarkModeToggle />
+
+      {/* Nav */}
+      <div className="flex items-center gap-0.5">
+        <Link
+          href="/"
+          className="font-code text-[11px] text-muted-foreground/55 hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.05]"
+        >
+          ~/home
+        </Link>
+        <Link
+          href="/favorites"
+          className="flex items-center gap-1.5 font-code text-[11px] text-muted-foreground/55 hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.05]"
+          aria-label="View favourites"
+        >
+          <Bookmark className="h-3 w-3" />
+          ~/saved
+        </Link>
+        <div className="h-3.5 w-px bg-white/10 mx-1.5" />
+        <DarkModeToggle />
+      </div>
     </header>
   );
 }

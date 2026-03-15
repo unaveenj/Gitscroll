@@ -1,0 +1,88 @@
+---
+title: "Feed system"
+description: "How GitScroll categorises repositories and interleaves them into the curated discovery feed."
+---
+
+The feed pipeline turns a raw list of GitHub search results into a rhythmically varied stream of cards. Two modules handle this: `feedBuilder.ts` (pure functions) and `FeedManager` (stateful class).
+
+## Categorisation
+
+Every repo is assigned one of four categories based on its topics and primary language.
+
+`src/services/feedBuilder.ts` — `categorizeRepo()`
+
+| Category | Triggers |
+|----------|---------|
+| `AI` | Topics: `ai`, `machine-learning`, `llm`, `deep-learning`, `neural`, `gpt`, `diffusion`, `stable-diffusion`, `nlp`, `computer-vision` |
+| `TOOLS` | Topics: `cli`, `tool`, `developer-tools`, `productivity`, `devtools`, `framework`, `library`, `sdk`, `api`, `rpc`, `microservices` · Languages: Go, Rust, Java |
+| `FUN` | Topics: `fun`, `game`, `animation`, `demo`, `creative`, `art`, `generative` · Language: C++ |
+| `TRENDING` | Fallback — everything that matches none of the above |
+
+Rules are evaluated in order: AI → TOOLS → FUN → TRENDING. A repo matching both AI and TOOLS topics gets `AI`.
+
+## Feed interleaving
+
+`buildFeed()` reorders a categorised repo list into a repeating `TRENDING → AI → TOOLS → FUN` pattern.
+
+```
+Round 1:  TRENDING[0]  AI[0]  TOOLS[0]  FUN[0]
+Round 2:  TRENDING[1]  AI[1]  TOOLS[1]  FUN[1]
+…
+```
+
+Empty buckets are skipped — no cross-category substitution. If a category runs dry, later rounds simply omit its slot.
+
+## FeedManager
+
+`FeedManager` wraps `buildFeed` and `categorizeRepo` behind a stateful class that accumulates repos across multiple API pages.
+
+```typescript
+const manager = new FeedManager();
+
+// Raw GitHub API items (no category field):
+manager.appendRaw(apiPage.items);
+
+// Pre-categorised repos (e.g. mock data):
+manager.append(mockRepos);
+
+// Get current interleaved feed:
+const feed = manager.getFeed();
+
+// Check total count:
+console.log(manager.length);
+
+// Reset for a fresh session:
+manager.reset();
+```
+
+`getFeed()` is non-destructive — it reads from internal buckets without mutating them, so it can be called multiple times.
+
+## Mock fallback
+
+When `GITHUB_TOKEN` is not set, `githubService.ts` calls `mockFallback()`, which:
+
+1. Creates a `FeedManager` and loads the 12 pre-built repos from `mockRepos.ts`.
+2. Calls `getFeed()` to interleave them.
+3. Slices the result by page number (20 items per page).
+
+This means the full feed pipeline — categorisation, interleaving, pagination — runs identically in development and production. The only difference is the data source.
+
+## Data flow summary
+
+```
+GitHub Search API
+       │
+       ▼
+  githubService.ts       ← server-only, token never leaves here
+       │  mapItem()       ← GitHubSearchItem → GitHubRepo (no category)
+       │  FeedManager.appendRaw()
+       │  categorizeRepo() + buildFeed()
+       ▼
+  /api/repos route       ← returns RepoFeedPage { repos[], nextPage }
+       │
+       ▼
+  useRepoFeed hook       ← TanStack Query infinite query, client-side
+       │
+       ▼
+  RepoFeed → CardStack → RepoCardPanel
+```

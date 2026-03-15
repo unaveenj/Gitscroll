@@ -1,0 +1,68 @@
+---
+title: "GitHub token setup"
+description: "Create and configure a GitHub personal access token for GitScroll."
+---
+
+GitScroll uses the GitHub Search API to fetch repositories. The API allows 10 unauthenticated requests per minute. With a token that rate limit rises to 30 requests per minute (search) or 5 000 requests per hour (general). For a smooth experience, always run with a token.
+
+## Create a token
+
+<Steps>
+  <Step title="Open GitHub token settings">
+    Go to **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens** (recommended) or **Tokens (classic)**.
+  </Step>
+
+  <Step title="Generate a new token">
+    Click **Generate new token**.
+
+    - **Token name**: `GitScroll dev` (or any name you like)
+    - **Expiration**: 90 days is a reasonable choice; you can set no expiration for a permanent token
+    - **Repository access**: No repository access needed — GitScroll only reads the public Search API
+    - **Permissions**: No additional permissions required for public repository search
+  </Step>
+
+  <Step title="Copy the token">
+    Copy the token value immediately — GitHub shows it only once.
+
+    It starts with `ghp_` (classic) or `github_pat_` (fine-grained).
+  </Step>
+
+  <Step title="Add to your environment">
+    Create `.env.local` in the project root:
+
+    ```bash
+    GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+    ```
+
+    Then restart your dev server:
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+## Verify it is working
+
+With the server running, open your browser's DevTools console. You should see log lines from `githubService`:
+
+```
+[githubService] fetching page 23 from GitHub API
+[githubService] GET https://api.github.com/search/repositories?…
+[githubService] response status: 200 OK
+[githubService] rate limit remaining: 29 / 30
+[githubService] received 20 repos (total_count: 47382)
+```
+
+If you see `GITHUB_TOKEN not set — using mock data`, the variable was not picked up. Double-check the file name (`.env.local`, not `.env`) and restart the dev server.
+
+## Rate limits
+
+| Scenario | Search limit |
+|----------|-------------|
+| No token | 10 req / min |
+| With token | 30 req / min |
+
+GitScroll fetches one page per session start and one additional page every time the user reaches four cards from the end. Under normal usage you will not hit the rate limit.
+
+If you do hit the limit, the GitHub API returns a `403` response. The app logs the error and shows an error state in the feed.

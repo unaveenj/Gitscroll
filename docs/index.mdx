@@ -1,0 +1,48 @@
+---
+title: "GitScroll"
+description: "Discover hidden GitHub repositories by swiping through a flash-card feed — like TikTok for open source."
+---
+
+GitScroll is a developer discovery tool that turns the GitHub Search API into an infinite, swipeable flash-card deck. Instead of browsing lists, you swipe through curated repositories one at a time, save the ones that spark ideas, and move on.
+
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get a local dev environment running in under five minutes.
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/architecture/overview">
+    Understand how the feed pipeline, card stack, and data layer fit together.
+  </Card>
+  <Card title="Card stack" icon="layers" href="/features/card-stack">
+    How the Framer Motion swipe system and stacked card UI works.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/repos">
+    The single REST endpoint that powers the feed.
+  </Card>
+</Columns>
+
+## What GitScroll does
+
+GitScroll fetches repositories from the GitHub Search API that have between **30 and 500 stars** and were pushed to after 2024-01-01 — the hidden-gem range. Each repo is categorised as **Trending**, **AI Tool**, **Dev Tool**, or **Fun Project**, then surfaced one card at a time.
+
+```
+GitHub Search API → categorisation → feed interleaving → card stack → swipe
+```
+
+Key behaviours:
+
+- **Random starting page** — every session begins on a different page of results so you never see the same repos twice.
+- **Infinite pagination** — the next page is pre-fetched silently when you are four cards from the end.
+- **Local favourites** — saved repos are persisted to `localStorage` with no backend required.
+- **Surprise Me** — a button that jumps to a random card in the current deck.
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 (App Router) |
+| Styling | Tailwind CSS + CSS variables |
+| Animations | Framer Motion 12 |
+| Data fetching | TanStack Query v5 |
+| Theme | next-themes |
+| UI primitives | Radix UI, Lucide React |
+| Language | TypeScript |
