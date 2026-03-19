@@ -5,14 +5,12 @@ import useSWR from "swr";
 interface SummaryResult {
   has_readme: boolean;
   summary: string | null;
-  error?: string;
 }
 
 async function fetcher(url: string): Promise<SummaryResult> {
   const res = await fetch(url);
-  const json = await res.json();
-  if (!res.ok) return { has_readme: false, summary: null, error: json.error ?? "unknown" };
-  return json;
+  if (!res.ok) return { has_readme: false, summary: null };
+  return res.json();
 }
 
 /**
@@ -36,7 +34,6 @@ export function useReadmeSummary(
   return {
     summary: data?.summary ?? null,
     hasReadme: data?.has_readme ?? null,
-    serviceDown: data?.error === "summariser_unavailable",
     isLoading,
   };
 }

@@ -136,7 +136,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme !== "light";
 
-  const { summary, hasReadme, serviceDown, isLoading: summaryLoading } = useReadmeSummary(
+  const { summary, hasReadme, isLoading: summaryLoading } = useReadmeSummary(
     repo.owner.login,
     repo.name,
     isFlipped,
@@ -381,16 +381,6 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
                 </div>
                 <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--card-desc)" }}>
                   {summary}
-                </p>
-              </div>
-            ) : serviceDown ? (
-              <div
-                className="flex items-center gap-2 rounded-lg px-3 py-2.5 border"
-                style={{ background: "var(--chip-generic-bg)", borderColor: "var(--chip-generic-border)" }}
-              >
-                <span className="text-sm">⚠️</span>
-                <p className="font-code text-[10.5px]" style={{ color: "var(--card-muted)" }}>
-                  Summariser offline — run the Python service.
                 </p>
               </div>
             ) : hasReadme === false ? (
