@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "next-themes";
 import { Bookmark, BookmarkCheck, ExternalLink } from "lucide-react";
 import type { GitHubRepo, RepoCategory } from "@/types/github";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useReadmeSummary } from "@/hooks/useReadmeSummary";
 
 // ─── Category theme system ────────────────────────────────────────────────────
 
@@ -13,6 +15,7 @@ interface CategoryTheme {
   accent: string;
   topGlow: string;
   cardShadow: string;
+  cardShadowLight: string;
   ideaBg: string;
   ideaBorder: string;
   badgeBg: string;
@@ -29,6 +32,7 @@ const CATEGORY_THEMES: Record<RepoCategory, CategoryTheme> = {
     accent: "#fb923c",
     topGlow: "linear-gradient(160deg, rgba(251,146,60,0.13) 0%, transparent 55%)",
     cardShadow: "0 0 0 1px rgba(251,146,60,0.16), 0 0 40px rgba(251,146,60,0.08), 0 16px 48px rgba(0,0,0,0.65)",
+    cardShadowLight: "0 0 0 1px rgba(251,146,60,0.28), 0 0 28px rgba(251,146,60,0.12), 0 8px 32px rgba(0,0,0,0.10)",
     ideaBg: "rgba(251,146,60,0.07)",
     ideaBorder: "rgba(251,146,60,0.22)",
     badgeBg: "bg-orange-500/[0.12]",
@@ -43,6 +47,7 @@ const CATEGORY_THEMES: Record<RepoCategory, CategoryTheme> = {
     accent: "#a78bfa",
     topGlow: "linear-gradient(160deg, rgba(167,139,250,0.15) 0%, transparent 55%)",
     cardShadow: "0 0 0 1px rgba(167,139,250,0.18), 0 0 40px rgba(139,92,246,0.10), 0 16px 48px rgba(0,0,0,0.65)",
+    cardShadowLight: "0 0 0 1px rgba(167,139,250,0.30), 0 0 28px rgba(139,92,246,0.14), 0 8px 32px rgba(0,0,0,0.10)",
     ideaBg: "rgba(139,92,246,0.08)",
     ideaBorder: "rgba(167,139,250,0.24)",
     badgeBg: "bg-violet-500/[0.12]",
@@ -57,6 +62,7 @@ const CATEGORY_THEMES: Record<RepoCategory, CategoryTheme> = {
     accent: "#22d3ee",
     topGlow: "linear-gradient(160deg, rgba(34,211,238,0.12) 0%, transparent 55%)",
     cardShadow: "0 0 0 1px rgba(34,211,238,0.16), 0 0 40px rgba(6,182,212,0.08), 0 16px 48px rgba(0,0,0,0.65)",
+    cardShadowLight: "0 0 0 1px rgba(34,211,238,0.28), 0 0 28px rgba(6,182,212,0.12), 0 8px 32px rgba(0,0,0,0.10)",
     ideaBg: "rgba(6,182,212,0.07)",
     ideaBorder: "rgba(34,211,238,0.22)",
     badgeBg: "bg-cyan-500/[0.12]",
@@ -71,6 +77,7 @@ const CATEGORY_THEMES: Record<RepoCategory, CategoryTheme> = {
     accent: "#fb7185",
     topGlow: "linear-gradient(160deg, rgba(251,113,133,0.13) 0%, transparent 55%)",
     cardShadow: "0 0 0 1px rgba(251,113,133,0.16), 0 0 40px rgba(244,63,94,0.08), 0 16px 48px rgba(0,0,0,0.65)",
+    cardShadowLight: "0 0 0 1px rgba(251,113,133,0.28), 0 0 28px rgba(244,63,94,0.12), 0 8px 32px rgba(0,0,0,0.10)",
     ideaBg: "rgba(244,63,94,0.07)",
     ideaBorder: "rgba(251,113,133,0.22)",
     badgeBg: "bg-rose-500/[0.12]",
@@ -126,6 +133,14 @@ interface RepoCardPanelProps {
 export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { toggle, isSaved } = useFavorites();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme !== "light";
+
+  const { summary, hasReadme, serviceDown, isLoading: summaryLoading } = useReadmeSummary(
+    repo.owner.login,
+    repo.name,
+    isFlipped,
+  );
 
   const saved     = isSaved(repo.id);
   const theme     = CATEGORY_THEMES[repo.category];
@@ -133,6 +148,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
   const langColor = repo.language ? (LANG_COLORS[repo.language] ?? "#64748b") : "#64748b";
   const idea      = repo.language ? (IDEAS[repo.language] ?? IDEAS.default) : IDEAS.default;
   const topicChips = repo.topics.slice(0, 2);
+  const shadow    = isDark ? theme.cardShadow : theme.cardShadowLight;
 
   return (
     /*
@@ -141,11 +157,11 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
      */
     <div
       className="relative w-full h-full rounded-2xl cursor-pointer select-none"
-      style={{ perspective: "1200px", boxShadow: theme.cardShadow }}
+      style={{ perspective: "1200px", boxShadow: shadow }}
       onClick={() => setIsFlipped((f) => !f)}
     >
       {/* Base surface */}
-      <div className="absolute inset-0 rounded-2xl -z-10" style={{ background: "#08111e" }} />
+      <div className="absolute inset-0 rounded-2xl -z-10" style={{ background: "var(--card-surface)" }} />
 
       {/* Category diagonal glow — top-left corner wash */}
       <div
@@ -197,7 +213,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
           <div className="mt-3">
             <h2
               className="font-display font-bold leading-[1.18] tracking-tight line-clamp-2"
-              style={{ fontSize: "clamp(1.15rem, 3.5vw, 1.45rem)", color: "#ecf0ff" }}
+              style={{ fontSize: "clamp(1.15rem, 3.5vw, 1.45rem)", color: "var(--card-title)" }}
             >
               {repo.name.replace(/-/g, " ")}
             </h2>
@@ -211,7 +227,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
               />
               <span
                 className="font-code text-[10px] tracking-wide leading-none"
-                style={{ color: "rgba(148,163,184,0.5)" }}
+                style={{ color: "var(--card-muted)" }}
               >
                 {repo.owner.login}
               </span>
@@ -221,7 +237,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
           {/* §3 — Description */}
           <p
             className="mt-3 text-[12.5px] leading-[1.55] line-clamp-2"
-            style={{ color: "rgba(203,213,225,0.68)" }}
+            style={{ color: "var(--card-desc)" }}
           >
             {repo.description ?? "No description provided."}
           </p>
@@ -240,7 +256,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
               <span
                 key={t}
                 className="font-code text-[10px] px-2 py-[3px] rounded-md border"
-                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)", color: "rgba(148,163,184,0.5)" }}
+                style={{ background: "var(--chip-generic-bg)", borderColor: "var(--chip-generic-border)", color: "var(--chip-generic-text)" }}
               >
                 {t}
               </span>
@@ -281,10 +297,10 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
             <button
               className="flex items-center justify-center gap-1.5 font-code text-[11px] font-medium
                          px-3.5 py-2 rounded-xl border transition-all active:scale-95
-                         hover:bg-white/[0.05] hover:border-white/[0.16]"
+                         hover:bg-foreground/[0.05] hover:border-foreground/[0.16]"
               style={{
-                borderColor: "rgba(255,255,255,0.09)",
-                color: saved ? "#ecf0ff" : "rgba(148,163,184,0.65)",
+                borderColor: "var(--btn-ghost-border)",
+                color: saved ? "var(--btn-ghost-saved)" : "var(--btn-ghost-color)",
               }}
               onClick={(e) => { e.stopPropagation(); toggle(repo); }}
               aria-label={saved ? "Remove from favourites" : "Save to favourites"}
@@ -322,32 +338,77 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
             padding: "18px 20px 16px",
-            background: `radial-gradient(ellipse 70% 40% at 50% 0%, ${theme.accent}0a, transparent)`,
+            background: `radial-gradient(ellipse 70% 40% at 50% 0%, ${theme.accent}0d, transparent)`,
           }}
         >
           {/* Header */}
           <div className="pr-10 mb-3">
             <p
               className="font-code text-[9px] tracking-[0.18em] uppercase mb-1.5"
-              style={{ color: "rgba(148,163,184,0.38)" }}
+              style={{ color: "var(--card-muted)", opacity: 0.7 }}
             >
               {repo.full_name}
             </p>
             <h2
               className="font-display text-lg font-bold leading-tight"
-              style={{ color: "#ecf0ff" }}
+              style={{ color: "var(--card-title)" }}
             >
               {repo.name.replace(/-/g, " ")}
             </h2>
           </div>
 
-          {/* Full description */}
-          <p
-            className="text-[12.5px] leading-relaxed mb-4"
-            style={{ color: "rgba(203,213,225,0.70)" }}
-          >
-            {repo.description ?? "No description provided."}
-          </p>
+          {/* README summary */}
+          <div className="mb-4">
+            {summaryLoading ? (
+              <div className="flex flex-col gap-1.5">
+                <div className="h-2.5 rounded-full animate-pulse w-full" style={{ background: `${theme.accent}22` }} />
+                <div className="h-2.5 rounded-full animate-pulse w-5/6" style={{ background: `${theme.accent}22` }} />
+                <div className="h-2.5 rounded-full animate-pulse w-4/6" style={{ background: `${theme.accent}22` }} />
+                <div
+                  className="mt-1.5 font-code text-[9px] tracking-[0.15em] uppercase"
+                  style={{ color: theme.accent, opacity: 0.5 }}
+                >
+                  reading readme…
+                </div>
+              </div>
+            ) : hasReadme && summary ? (
+              <div>
+                <div
+                  className="font-code text-[9px] tracking-[0.18em] uppercase mb-1.5"
+                  style={{ color: theme.accent, opacity: 0.65 }}
+                >
+                  📄 readme summary
+                </div>
+                <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--card-desc)" }}>
+                  {summary}
+                </p>
+              </div>
+            ) : serviceDown ? (
+              <div
+                className="flex items-center gap-2 rounded-lg px-3 py-2.5 border"
+                style={{ background: "var(--chip-generic-bg)", borderColor: "var(--chip-generic-border)" }}
+              >
+                <span className="text-sm">⚠️</span>
+                <p className="font-code text-[10.5px]" style={{ color: "var(--card-muted)" }}>
+                  Summariser offline — run the Python service.
+                </p>
+              </div>
+            ) : hasReadme === false ? (
+              <div
+                className="flex items-center gap-2 rounded-lg px-3 py-2.5 border"
+                style={{ background: "var(--chip-generic-bg)", borderColor: "var(--chip-generic-border)" }}
+              >
+                <span className="text-sm">📭</span>
+                <p className="font-code text-[10.5px]" style={{ color: "var(--card-muted)" }}>
+                  No README available for this repo.
+                </p>
+              </div>
+            ) : (
+              <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--card-desc)" }}>
+                {repo.description ?? "No description provided."}
+              </p>
+            )}
+          </div>
 
           {/* Stats */}
           <div className="flex items-center gap-4 mb-4">
@@ -360,7 +421,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
             {repo.language && (
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: langColor }} />
-                <span className="font-code text-xs" style={{ color: "rgba(148,163,184,0.58)" }}>
+                <span className="font-code text-xs" style={{ color: "var(--card-muted)" }}>
                   {repo.language}
                 </span>
               </div>
@@ -374,7 +435,7 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
                 <span
                   key={topic}
                   className="font-code text-[10px] px-2 py-[3px] rounded-md border"
-                  style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)", color: "rgba(148,163,184,0.50)" }}
+                  style={{ background: "var(--chip-generic-bg)", borderColor: "var(--chip-generic-border)", color: "var(--chip-generic-text)" }}
                 >
                   {topic}
                 </span>
@@ -386,15 +447,15 @@ export function RepoCardPanel({ repo, index, total }: RepoCardPanelProps) {
           <div className="mt-auto">
             <p
               className="text-center font-code text-[9px] tracking-[0.2em] uppercase mb-2.5"
-              style={{ color: "rgba(148,163,184,0.22)" }}
+              style={{ color: "var(--card-muted)", opacity: 0.45 }}
             >
               tap to flip back
             </p>
             <div className="flex gap-2">
               <button
                 className="flex items-center justify-center gap-1.5 font-code text-[11px] font-medium
-                           px-3.5 py-2 rounded-xl border transition-all active:scale-95 hover:bg-white/[0.05]"
-                style={{ borderColor: "rgba(255,255,255,0.09)", color: saved ? "#ecf0ff" : "rgba(148,163,184,0.65)" }}
+                           px-3.5 py-2 rounded-xl border transition-all active:scale-95 hover:bg-foreground/[0.05]"
+                style={{ borderColor: "var(--btn-ghost-border)", color: saved ? "var(--btn-ghost-saved)" : "var(--btn-ghost-color)" }}
                 onClick={(e) => { e.stopPropagation(); toggle(repo); }}
                 aria-label={saved ? "Remove from favourites" : "Save to favourites"}
               >

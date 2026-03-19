@@ -120,8 +120,10 @@ export function CardStack({
       ease: [0.4, 0, 1, 1], // accelerate out
       duration: 0.26,
       onComplete: () => {
+        // Reset BEFORE triggering the re-render so the next card never
+        // appears at y=-900 for even a single frame.
+        cardY.set(0);
         onAdvance();
-        // cardY is reset by the useEffect above when currentIndex changes
       },
     });
   }, [cardY, currentIndex, repos.length, onAdvance]);

@@ -23,6 +23,9 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# Python venv
+python/venv/
+
 # Planning / internal docs — keep off GitHub
 SPEC.md
 TECH_STACK.md

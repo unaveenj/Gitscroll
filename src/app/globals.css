@@ -24,6 +24,32 @@
     --ring: 174 90% 44%;
     --radius: 1rem;
     --header-height: 4rem;
+
+    /* Component-level theme tokens */
+    --header-bg: rgba(6, 9, 20, 0.82);
+    --card-surface: #08111e;
+    --card-title: #ecf0ff;
+    --card-desc: rgba(203, 213, 225, 0.68);
+    --card-muted: rgba(148, 163, 184, 0.50);
+    --chip-generic-bg: rgba(255, 255, 255, 0.03);
+    --chip-generic-border: rgba(255, 255, 255, 0.08);
+    --chip-generic-text: rgba(148, 163, 184, 0.50);
+    --btn-ghost-border: rgba(255, 255, 255, 0.09);
+    --btn-ghost-color: rgba(148, 163, 184, 0.65);
+    --btn-ghost-saved: #ecf0ff;
+    --surprise-btn-bg: rgba(8, 17, 30, 0.90);
+    --surprise-btn-border: rgba(0, 229, 204, 0.20);
+    --surprise-btn-color: #00e5cc;
+    --filter-pill-bg: rgba(255, 255, 255, 0.04);
+    --filter-pill-border: rgba(255, 255, 255, 0.08);
+    --filter-pill-text: rgba(148, 163, 184, 0.65);
+    --filter-pill-active-bg: rgba(0, 229, 204, 0.10);
+    --filter-pill-active-border: rgba(0, 229, 204, 0.30);
+    --filter-pill-active-text: #00e5cc;
+    --search-input-bg: rgba(255, 255, 255, 0.04);
+    --search-input-border: rgba(255, 255, 255, 0.08);
+    --search-input-text: rgba(203, 213, 225, 0.85);
+    --search-input-placeholder: rgba(148, 163, 184, 0.40);
   }
 
   /* Light mode override */
@@ -44,6 +70,32 @@
     --input: 214 20% 88%;
     --ring: 174 70% 36%;
     --header-height: 4rem;
+
+    /* Light component tokens */
+    --header-bg: rgba(246, 249, 252, 0.92);
+    --card-surface: #ffffff;
+    --card-title: #0f172a;
+    --card-desc: rgba(30, 41, 59, 0.72);
+    --card-muted: rgba(71, 85, 105, 0.65);
+    --chip-generic-bg: rgba(0, 0, 0, 0.04);
+    --chip-generic-border: rgba(0, 0, 0, 0.09);
+    --chip-generic-text: rgba(71, 85, 105, 0.65);
+    --btn-ghost-border: rgba(0, 0, 0, 0.10);
+    --btn-ghost-color: rgba(71, 85, 105, 0.70);
+    --btn-ghost-saved: #0f172a;
+    --surprise-btn-bg: rgba(255, 255, 255, 0.92);
+    --surprise-btn-border: rgba(0, 160, 140, 0.30);
+    --surprise-btn-color: #00796b;
+    --filter-pill-bg: rgba(0, 0, 0, 0.04);
+    --filter-pill-border: rgba(0, 0, 0, 0.09);
+    --filter-pill-text: rgba(71, 85, 105, 0.75);
+    --filter-pill-active-bg: rgba(0, 160, 140, 0.08);
+    --filter-pill-active-border: rgba(0, 160, 140, 0.28);
+    --filter-pill-active-text: #00796b;
+    --search-input-bg: rgba(0, 0, 0, 0.04);
+    --search-input-border: rgba(0, 0, 0, 0.09);
+    --search-input-text: rgba(15, 23, 42, 0.85);
+    --search-input-placeholder: rgba(71, 85, 105, 0.45);
   }
 
   /* Dark class — mirrors :root (dark-first) */
@@ -64,6 +116,31 @@
     --input: 220 28% 13%;
     --ring: 174 90% 44%;
     --header-height: 4rem;
+
+    --header-bg: rgba(6, 9, 20, 0.82);
+    --card-surface: #08111e;
+    --card-title: #ecf0ff;
+    --card-desc: rgba(203, 213, 225, 0.68);
+    --card-muted: rgba(148, 163, 184, 0.50);
+    --chip-generic-bg: rgba(255, 255, 255, 0.03);
+    --chip-generic-border: rgba(255, 255, 255, 0.08);
+    --chip-generic-text: rgba(148, 163, 184, 0.50);
+    --btn-ghost-border: rgba(255, 255, 255, 0.09);
+    --btn-ghost-color: rgba(148, 163, 184, 0.65);
+    --btn-ghost-saved: #ecf0ff;
+    --surprise-btn-bg: rgba(8, 17, 30, 0.90);
+    --surprise-btn-border: rgba(0, 229, 204, 0.20);
+    --surprise-btn-color: #00e5cc;
+    --filter-pill-bg: rgba(255, 255, 255, 0.04);
+    --filter-pill-border: rgba(255, 255, 255, 0.08);
+    --filter-pill-text: rgba(148, 163, 184, 0.65);
+    --filter-pill-active-bg: rgba(0, 229, 204, 0.10);
+    --filter-pill-active-border: rgba(0, 229, 204, 0.30);
+    --filter-pill-active-text: #00e5cc;
+    --search-input-bg: rgba(255, 255, 255, 0.04);
+    --search-input-border: rgba(255, 255, 255, 0.08);
+    --search-input-text: rgba(203, 213, 225, 0.85);
+    --search-input-placeholder: rgba(148, 163, 184, 0.40);
   }
 }
 
@@ -93,11 +170,20 @@ body {
 }
 
 /* Thin dev scrollbar */
-::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar { width: 2px; height: 2px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 2px;
+}
+
+/* Hide scrollbar utility (keeps scrollability) */
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Search input placeholder colour (must be outside @layer for ::placeholder to work) */
+input::placeholder {
+  color: var(--search-input-placeholder);
 }
 
 @layer utilities {
