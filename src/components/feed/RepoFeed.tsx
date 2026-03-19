@@ -342,12 +342,10 @@ function FilterBar({
               : "var(--search-input-border)",
             color: "var(--search-input-text)",
           }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onFocus={(e: any) => {
+          onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
             e.target.style.borderColor = "var(--filter-pill-active-border)";
           }}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onBlur={(e: any) => {
+          onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
             if (!searchTerm) e.target.style.borderColor = "var(--search-input-border)";
           }}
         />
